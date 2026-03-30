@@ -14,10 +14,10 @@
 ## Grupo 4
 
 ### Integrantes:
-- **Aleff  Souza** — 
-- **Matheus Zimmer** — 
-- **Luciano Reis** — 
-- **João Colombo** — 
+- **Aleff  Souza** — 23025514
+- **Matheus Zimmer** — 23025264
+- **Luciano Reis** — 23025304
+- **João Colombo** — 23025479
 
 ### Professores Orientadores:
 Victor Bruno Alexander Rosetti de Quiroz,  
