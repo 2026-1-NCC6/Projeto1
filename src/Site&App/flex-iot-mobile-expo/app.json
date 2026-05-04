@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Flex IoT Mobile",
+    "slug": "flex-iot-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0d0f14"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.flexautomation.iotmobile"
+    }
+  }
+}

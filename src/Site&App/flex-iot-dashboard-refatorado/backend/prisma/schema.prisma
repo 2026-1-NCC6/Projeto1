@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("CLIENTE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Environment {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  devices     Device[]
+}
+
+model Device {
+  id             Int         @id @default(autoincrement())
+  name           String
+  code           String      @unique
+  mqttTopic      String      @unique
+  active         Boolean     @default(true)
+  status         String      @default("OFFLINE")
+  lastSeenAt     DateTime?
+
+  minTemperature Float?
+  maxTemperature Float?
+  minHumidity    Float?
+  maxHumidity    Float?
+  minPressure    Float?
+  maxPressure    Float?
+  maxGas         Float?
+
+  environmentId  Int
+  environment    Environment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+
+  readings       Reading[]
+  alerts         Alert[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Reading {
+  id          Int      @id @default(autoincrement())
+  deviceId    Int
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  topic       String
+  temperature Float?
+  humidity    Float?
+  pressure    Float?
+  gas         Float?
+  fogo        Boolean  @default(false)
+  estado      String?
+  rawPayload  String
+
+  createdAt   DateTime @default(now())
+
+  @@index([deviceId, createdAt])
+}
+
+model Alert {
+  id         Int       @id @default(autoincrement())
+  deviceId   Int?
+  device     Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  type       String
+  message    String
+  value      Float?
+  resolved   Boolean   @default(false)
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([deviceId, createdAt])
+}
+
+model SystemLog {
+  id        Int      @id @default(autoincrement())
+  level     String   @default("INFO")
+  source    String
+  message   String
+  metadata  String?
+  createdAt DateTime @default(now())
+}
+
+model MqttConfig {
+  id        Int      @id @default(1)
+  host      String
+  port      String   @default("8884")
+  username  String?
+  password  String?
+  protocol  String   @default("wss")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
