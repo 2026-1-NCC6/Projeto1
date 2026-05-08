@@ -647,9 +647,6 @@ function History() {
 
         <button onClick={load}>FILTRAR</button>
 
-        <a href={`${API_URL}/api/export.csv?from=${from}&to=${to}`} target="_blank">
-          <button>EXPORTAR CSV</button>
-        </a>
       </div>
 
       <table className="table">
@@ -686,60 +683,62 @@ function History() {
 }
 
 function Reports() {
-  const [report, setReport] = useState(null);
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  async function load() {
-    const q = new URLSearchParams({
-      ...(from ? { from } : {}),
-      ...(to ? { to } : {})
-    });
+  function gerarRelatorio() {
+    setLoading(true);
 
-    setReport(await api('/api/reports?' + q));
+    const url = `${API_URL}/api/relatorio-historico.csv?t=${Date.now()}`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'relatorio-historico-ultimos-1500.csv';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const s = report?.stats;
 
   return (
     <div className="card">
-      <h2>Relatórios: mínimo, máximo e média</h2>
+      <h2>Relatório do histórico</h2>
 
-      <div className="form-grid">
-        <Field label="De" type="datetime-local" value={from} onChange={setFrom} />
-        <Field label="Até" type="datetime-local" value={to} onChange={setTo} />
-        <button onClick={load}>GERAR</button>
+      <p className="muted">
+        Clique no botão abaixo para baixar um relatório CSV com os últimos 1500 dados lidos pelo sistema.
+      </p>
+
+      <div className="grid report-summary">
+        <div className="card">
+          <div className="muted">Formato</div>
+          <div className="value">CSV</div>
+          <div className="unit">abre no Excel/Google Sheets</div>
+        </div>
+
+        <div className="card">
+          <div className="muted">Quantidade</div>
+          <div className="value">1500</div>
+          <div className="unit">últimas leituras</div>
+        </div>
+
+        <div className="card">
+          <div className="muted">Dados</div>
+          <div className="value">MQTT</div>
+          <div className="unit">temperatura, umidade, gás, fogo e estado</div>
+        </div>
       </div>
 
-      {s && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Métrica</th>
-              <th>Mín</th>
-              <th>Máx</th>
-              <th>Média</th>
-            </tr>
-          </thead>
+      <button type="button" onClick={gerarRelatorio}>
+        {loading ? 'GERANDO RELATÓRIO...' : 'GERAR RELATÓRIO'}
+      </button>
 
-          <tbody>
-            {['temperature', 'humidity', 'pressure', 'gas'].map(k => (
-              <tr key={k}>
-                <td>{k}</td>
-                <td>{s._min[k]}</td>
-                <td>{s._max[k]}</td>
-                <td>{typeof s._avg[k] === 'number' ? s._avg[k].toFixed(2) : '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <p className="muted">Total de leituras: {report?.count ?? 0}</p>
+      <p className="muted" style={{ marginTop: '1rem' }}>
+        O arquivo será baixado automaticamente com as colunas: data, ambiente,
+        dispositivo, tópico, temperatura, umidade, pressão, gás, fogo e estado.
+      </p>
     </div>
   );
 }
