@@ -9,9 +9,16 @@
     "splash": {
       "backgroundColor": "#0d0f14"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.flexautomation.iotmobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d23cf55f-9805-4d40-913e-a91a68848ce1"
+      }
     }
   }
 }
