@@ -17,6 +17,9 @@ import { formatDateTime } from '../utils/date';
 
 const screenWidth = Dimensions.get('window').width;
 
+const MAX_READINGS_IN_MEMORY = 300;
+const MAX_POINTS_ON_CHART = 12;
+
 export default function EnvironmentDetailScreen({ route }) {
   const { environment } = route.params;
 
@@ -43,7 +46,7 @@ export default function EnvironmentDetailScreen({ route }) {
       const query = new URLSearchParams({
         from: from.toISOString(),
         to: now.toISOString(),
-        limit: '100'
+        limit: String(MAX_READINGS_IN_MEMORY)
       });
 
       const data = await api.get(`/readings?${query.toString()}`);
@@ -56,10 +59,14 @@ export default function EnvironmentDetailScreen({ route }) {
           )
         : [];
 
-      setReadings(filtered);
+      const limited = filtered.slice(0, MAX_READINGS_IN_MEMORY);
 
-      if (filtered.length > 0) {
-        setLatestReading(filtered[0]);
+      setReadings(limited);
+
+      if (limited.length > 0) {
+        setLatestReading(limited[0]);
+      } else {
+        setLatestReading(null);
       }
     } catch (error) {
       console.log('Erro ao carregar leituras:', error.message);
@@ -86,7 +93,7 @@ export default function EnvironmentDetailScreen({ route }) {
 
       setReadings(prev => {
         const updated = [reading, ...prev];
-        return updated.slice(0, 100);
+        return updated.slice(0, MAX_READINGS_IN_MEMORY);
       });
     });
 
@@ -94,7 +101,7 @@ export default function EnvironmentDetailScreen({ route }) {
       socket.off('reading:new');
       disconnectSocket();
     };
-  }, [environment.id]);
+  }, [environment.id, period]);
 
   function changePeriod(value) {
     setPeriod(value);
@@ -102,35 +109,47 @@ export default function EnvironmentDetailScreen({ route }) {
   }
 
   const chartData = useMemo(() => {
-    const ordered = [...readings].reverse().slice(-12);
+    const ordered = [...readings].reverse();
 
-    const labels = ordered.map(item => {
+    const sampled = sampleForMobileChart(ordered, MAX_POINTS_ON_CHART);
+
+    const labels = sampled.map((item, index) => {
       if (!item.createdAt) return '';
 
-      return new Date(item.createdAt).toLocaleTimeString('pt-BR', {
+      const time = new Date(item.createdAt).toLocaleTimeString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit'
       });
+
+      const isFirst = index === 0;
+      const isMiddle = index === Math.floor(sampled.length / 2);
+      const isLast = index === sampled.length - 1;
+
+      if (isFirst || isMiddle || isLast) {
+        return time;
+      }
+
+      return '';
     });
 
-    const temperature = ordered.map(item =>
+    const temperature = sampled.map(item =>
       typeof item.temperature === 'number' ? item.temperature : 0
     );
 
-    const humidity = ordered.map(item =>
+    const humidity = sampled.map(item =>
       typeof item.humidity === 'number' ? item.humidity : 0
     );
 
     return {
-      labels,
+      labels: labels.length > 0 ? labels : [''],
       datasets: [
         {
-          data: temperature,
+          data: temperature.length > 0 ? temperature : [0],
           color: opacity => `rgba(33, 150, 243, ${opacity})`,
           strokeWidth: 3
         },
         {
-          data: humidity,
+          data: humidity.length > 0 ? humidity : [0],
           color: opacity => `rgba(0, 200, 140, ${opacity})`,
           strokeWidth: 3
         }
@@ -218,7 +237,7 @@ export default function EnvironmentDetailScreen({ route }) {
           <View>
             <Text style={styles.chartTitle}>Gráfico das leituras recebidas</Text>
             <Text style={styles.chartSubtitle}>
-              Atualiza automaticamente conforme novos dados MQTT chegam.
+              Mostra uma amostra das leituras do período selecionado.
             </Text>
           </View>
         </View>
@@ -259,6 +278,13 @@ export default function EnvironmentDetailScreen({ route }) {
           </TouchableOpacity>
         </View>
 
+        <Text style={styles.chartHelp}>
+          {period === '24h'
+            ? 'Período: últimas 24 horas.'
+            : 'Período: últimos 7 dias.'}{' '}
+          O gráfico exibe até {MAX_POINTS_ON_CHART} pontos para manter a leitura clara.
+        </Text>
+
         {loading ? (
           <View style={styles.loadingBox}>
             <ActivityIndicator color="#00e5a0" />
@@ -274,7 +300,7 @@ export default function EnvironmentDetailScreen({ route }) {
           <>
             <LineChart
               data={chartData}
-              width={screenWidth - 32}
+              width={screenWidth - 64}
               height={280}
               bezier
               withShadow
@@ -340,6 +366,16 @@ export default function EnvironmentDetailScreen({ route }) {
   );
 }
 
+function sampleForMobileChart(items, maxPoints = MAX_POINTS_ON_CHART) {
+  if (!items || items.length <= maxPoints) {
+    return items || [];
+  }
+
+  const step = Math.ceil(items.length / maxPoints);
+
+  return items.filter((_, index) => index % step === 0).slice(0, maxPoints);
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -402,6 +438,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 13
   },
+  chartHelp: {
+    color: '#7b819b',
+    fontSize: 12,
+    lineHeight: 18,
+    paddingHorizontal: 16,
+    marginBottom: 8
+  },
   periodButtons: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -428,6 +471,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     marginVertical: 8,
+    marginLeft: -8,
     borderRadius: 10
   },
   legend: {

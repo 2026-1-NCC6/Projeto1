@@ -10,6 +10,8 @@ import { formatDate } from '../utils/date';
 import { styles } from '../utils/styles';
 import { numberValue, temperature } from '../utils/units';
 
+const MAX_LATEST_READINGS = 30;
+
 export default function DashboardScreen() {
   const { preferences } = useAuth();
   const [data, setData] = useState(null);
@@ -18,12 +20,21 @@ export default function DashboardScreen() {
 
   const load = useCallback(async () => {
     const response = await dashboardApi.get();
-    setData(response.data);
+
+    setData({
+      ...response.data,
+      latest: (response.data?.latest || []).slice(0, MAX_LATEST_READINGS)
+    });
   }, []);
 
   useEffect(() => {
     load().catch(() => Alert.alert('Erro', 'Não foi possível carregar o dashboard.'));
-    const interval = setInterval(() => load().catch(() => {}), preferences.refreshInterval || 15000);
+
+    const interval = setInterval(
+      () => load().catch(() => {}),
+      preferences.refreshInterval || 15000
+    );
+
     return () => clearInterval(interval);
   }, [load, preferences.refreshInterval]);
 
@@ -32,22 +43,41 @@ export default function DashboardScreen() {
 
     socket.on('connect', () => setSocketStatus('conectado'));
     socket.on('disconnect', () => setSocketStatus('desconectado'));
-    socket.on('reading:new', (reading) => {
+
+    socket.on('reading:new', reading => {
       if (!reading || !reading.device) return;
-      setData((prev) => {
+
+      setData(prev => {
         if (!prev) return prev;
+
         return {
           ...prev,
-          latest: [reading, ...(prev.latest || [])].slice(0, 20),
-          devices: (prev.devices || []).map((d) => d.id === reading.deviceId ? { ...d, status: reading.device?.status || d.status, lastSeenAt: reading.createdAt } : d),
+          latest: [reading, ...(prev.latest || [])].slice(0, MAX_LATEST_READINGS),
+          devices: (prev.devices || []).map(device =>
+            device.id === reading.deviceId
+              ? {
+                  ...device,
+                  status: reading.device?.status || device.status,
+                  lastSeenAt: reading.createdAt
+                }
+              : device
+          )
         };
       });
+
       if (reading.fogo || reading.estado === 'EMERGENCIA') {
-        Alert.alert('🚨 Emergência', `Fogo/emergência detectado em ${reading.device?.name || 'dispositivo'}.`);
+        Alert.alert(
+          '🚨 Emergência',
+          `Fogo/emergência detectado em ${reading.device?.name || 'dispositivo'}.`
+        );
       }
     });
+
     socket.on('device:offline', () => load().catch(() => {}));
-    socket.on('invalid-payload', () => Alert.alert('Payload inválido', 'O backend recebeu uma mensagem MQTT inválida.'));
+
+    socket.on('invalid-payload', () =>
+      Alert.alert('Payload inválido', 'O backend recebeu uma mensagem MQTT inválida.')
+    );
 
     return () => {
       socket.off('connect');
@@ -67,37 +97,77 @@ export default function DashboardScreen() {
 
   if (!data) return <Loading message="Carregando dashboard..." />;
 
-  const online = data.devices?.filter((d) => d.status !== 'OFFLINE').length || 0;
-  const offline = data.devices?.filter((d) => d.status === 'OFFLINE').length || 0;
-  const emergency = data.devices?.filter((d) => d.status === 'EMERGENCIA').length || 0;
+  const online = data.devices?.filter(device => device.status !== 'OFFLINE').length || 0;
+  const offline = data.devices?.filter(device => device.status === 'OFFLINE').length || 0;
+  const emergency =
+    data.devices?.filter(device => device.status === 'EMERGENCIA').length || 0;
+
+  const latestReadings = (data.latest || []).slice(0, MAX_LATEST_READINGS);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
-      <Text style={styles.muted}>Socket.IO: {socketStatus} | MQTT: {data.mqtt?.status || '—'}</Text>
+
+      <Text style={styles.muted}>
+        Socket.IO: {socketStatus} | MQTT: {data.mqtt?.status || '—'}
+      </Text>
 
       <View style={{ flexDirection: 'row', gap: 8, marginVertical: 10 }}>
-        <View style={{ flex: 1 }}><Card title="Online" value={`${online}`} /></View>
-        <View style={{ flex: 1 }}><Card title="Offline" value={`${offline}`} danger={offline > 0} /></View>
-        <View style={{ flex: 1 }}><Card title="Emerg." value={`${emergency}`} danger={emergency > 0} /></View>
+        <View style={{ flex: 1 }}>
+          <Card title="Online" value={`${online}`} />
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <Card title="Offline" value={`${offline}`} danger={offline > 0} />
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <Card title="Emerg." value={`${emergency}`} danger={emergency > 0} />
+        </View>
       </View>
 
       <Text style={styles.subtitle}>Últimas leituras</Text>
+
+      <Text style={styles.muted}>
+        Exibindo no máximo as últimas {MAX_LATEST_READINGS} leituras recebidas.
+      </Text>
+
       <FlatList
-        data={data.latest || []}
-        keyExtractor={(item) => String(item.id)}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={<Text style={styles.muted}>Nenhuma leitura recebida ainda.</Text>}
+        data={latestReadings}
+        keyExtractor={item => String(item.id)}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={
+          <Text style={styles.muted}>Nenhuma leitura recebida ainda.</Text>
+        }
         renderItem={({ item }) => (
           <Card danger={item.fogo || item.estado === 'EMERGENCIA'}>
             <View style={styles.row}>
-              <Text style={styles.subtitle}>{item.device?.environment?.name || 'Ambiente'} · {item.device?.name || 'Dispositivo'}</Text>
+              <Text style={styles.subtitle}>
+                {item.device?.environment?.name || 'Ambiente'} ·{' '}
+                {item.device?.name || 'Dispositivo'}
+              </Text>
+
               <StatusBadge status={item.estado || item.device?.status} />
             </View>
-            <Text style={styles.text}>Temperatura: {temperature(item.temperature, preferences.unit)}</Text>
-            <Text style={styles.text}>Umidade: {numberValue(item.humidity, '%')}</Text>
-            <Text style={styles.text}>Pressão: {numberValue(item.pressure, ' hPa')}</Text>
-            <Text style={styles.text}>Gás: {item.gas ?? '—'} | Fogo: {item.fogo ? 'SIM' : 'NÃO'}</Text>
+
+            <Text style={styles.text}>
+              Temperatura: {temperature(item.temperature, preferences.unit)}
+            </Text>
+
+            <Text style={styles.text}>
+              Umidade: {numberValue(item.humidity, '%')}
+            </Text>
+
+            <Text style={styles.text}>
+              Pressão: {numberValue(item.pressure, ' hPa')}
+            </Text>
+
+            <Text style={styles.text}>
+              Gás: {item.gas ?? '—'} | Fogo: {item.fogo ? 'SIM' : 'NÃO'}
+            </Text>
+
             <Text style={styles.muted}>{formatDate(item.createdAt)}</Text>
           </Card>
         )}
