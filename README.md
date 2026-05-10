@@ -18,12 +18,7 @@
 - **Luciano Reis** — 23025304
 - **João Colombo** — 23025479
 
-### Professores Orientadores:
-Victor Bruno Alexander Rosetti de Quiroz,  
-Edson Ricardo Barbeiro,  
-Lucy Mari Tabuti,  
-Rodnil da Silva Moreira Lisboa,  
-João Francisco Trencher Martins.
+## Professores Orientadores: <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>, <a href="https://www.linkedin.com/in/professorrodnil/">Rodnil da Silva Moreira Lisboa</a>, <a href="https://www.linkedin.com/in/lucymari/">Lucy Mari Tabuti</a>, <a href="https://www.linkedin.com/in/trencher/">Joao Francisco Trencher Martins</a>, <a href="https://www.linkedin.com/in/edsonbarbero/">Edson Ricardo Barbero</a>
 
 ---
 
@@ -257,7 +252,42 @@ O relatório contém informações como:
 
 ---
 
-## ⚙️ Como executar o frontend web
+## ⚙️ Como executar o projeto
+
+O projeto pode ser executado de duas formas:
+
+- Usando o **backend publicado no Render**, recomendado para testes e apresentação;
+- Rodando o **backend localmente**, recomendado para desenvolvimento.
+
+---
+
+### 1. Backend publicado no Render
+
+O backend já está publicado em:
+
+```txt
+https://projeto1-4rsx.onrender.com
+```
+
+Para verificar se a API está online, acesse:
+
+```txt
+https://projeto1-4rsx.onrender.com/healthz
+```
+
+Resposta esperada:
+
+```json
+{
+  "ok": true
+}
+```
+
+> Observação: por estar no plano gratuito do Render, a primeira requisição pode demorar alguns segundos caso o serviço esteja em repouso.
+
+---
+
+### 2. Executar o frontend web
 
 Entre na pasta do frontend:
 
@@ -278,23 +308,30 @@ VITE_API_URL=https://projeto1-4rsx.onrender.com
 VITE_SOCKET_URL=https://projeto1-4rsx.onrender.com
 ```
 
-Execute:
+Execute o frontend:
 
 ```bash
 npm run dev
 ```
 
-Acesse:
+Acesse no navegador:
 
 ```txt
 http://localhost:5173
 ```
 
+Credenciais de teste:
+
+```txt
+E-mail: admin@flex.com
+Senha: admin123
+```
+
 ---
 
-## ⚙️ Como executar o app mobile
+### 3. Executar o aplicativo mobile
 
-Entre na pasta do app:
+Entre na pasta do aplicativo:
 
 ```bash
 cd src/Entrega2/SiteApp/flex-iot-mobile-expo
@@ -313,13 +350,127 @@ EXPO_PUBLIC_API_URL=https://projeto1-4rsx.onrender.com/api
 EXPO_PUBLIC_SOCKET_URL=https://projeto1-4rsx.onrender.com
 ```
 
-Execute:
+Execute o app:
 
 ```bash
 npx expo start -c
 ```
 
-Depois, abra o app pelo Expo Go ou instale o APK gerado.
+Depois, abra o aplicativo pelo **Expo Go** ou instale o APK gerado.
+
+Credenciais de teste:
+
+```txt
+E-mail: admin@flex.com
+Senha: admin123
+```
+
+---
+
+### 4. Executar o backend localmente
+
+Caso seja necessário rodar o backend localmente, entre na pasta:
+
+```bash
+cd src/Entrega2/SiteApp/flex-iot-dashboard-refatorado/backend
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Crie ou edite o arquivo `.env`:
+
+```env
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="flex_iot_secret_local"
+PORT=3333
+```
+
+Gere o Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+Sincronize o banco de dados:
+
+```bash
+npx prisma db push
+```
+
+Execute o seed inicial:
+
+```bash
+npm run seed
+```
+
+Inicie o backend:
+
+```bash
+npm run dev
+```
+
+Teste no navegador:
+
+```txt
+http://localhost:3333/healthz
+```
+
+Resposta esperada:
+
+```json
+{
+  "ok": true
+}
+```
+
+---
+
+### 5. Usar frontend com backend local
+
+Se o backend estiver rodando localmente, altere o `.env` do frontend para:
+
+```env
+VITE_API_URL=http://localhost:3333
+VITE_SOCKET_URL=http://localhost:3333
+```
+
+Depois execute novamente o frontend:
+
+```bash
+npm run dev
+```
+
+---
+
+### 6. Usar app mobile com backend local
+
+Para o aplicativo acessar o backend local, não utilize `localhost`, pois no celular `localhost` aponta para o próprio aparelho.
+
+Descubra o IP do computador na rede local e configure o `.env` do app assim:
+
+```env
+EXPO_PUBLIC_API_URL=http://SEU_IP_DA_REDE:3333/api
+EXPO_PUBLIC_SOCKET_URL=http://SEU_IP_DA_REDE:3333
+```
+
+Exemplo:
+
+```env
+EXPO_PUBLIC_API_URL=http://192.168.15.9:3333/api
+EXPO_PUBLIC_SOCKET_URL=http://192.168.15.9:3333
+```
+
+Depois execute:
+
+```bash
+npx expo start -c
+```
+
+O celular e o computador precisam estar conectados na mesma rede Wi-Fi.
 
 ---
 
