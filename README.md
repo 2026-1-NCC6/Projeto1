@@ -51,7 +51,6 @@
   &emsp;|-->android<br>
   &emsp;|-->HTML<br>
 |-->imagens<br>
-|-->src<br>
 |.gitignore<br>
 |readme.md<br>
 
@@ -529,13 +528,12 @@ Para fins acadêmicos, a solução atual atende ao fluxo principal do projeto e 
 ---
 
 ## 📋 Licença/License
-Este projeto está licenciado sob a licença CC BY 4.0.
-Você pode criar a sua própria licença Creative Commons em: https://chooser-beta.creativecommons.org/
+Arkanis © 2026 por Aleff Souza, João Colombo, Luciano Reis, Matheus Zimmer
+Licenciado sob a CC BY 4.0.
 
 ## 🎓 Referências
 
 Aqui estão as referências usadas no projeto:
-## 🎓 Referências
 
 - Node.js: https://nodejs.org/
 - Express.js: https://expressjs.com/
