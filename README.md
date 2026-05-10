@@ -75,7 +75,7 @@ A solução implementada permite receber dados ambientais, armazenar leituras, v
 A arquitetura final do sistema segue o fluxo:
 
 <p align="center">
-<img src="/imagens/arquitetura-sistema.png" width="620">
+<img src="/imagens/arquitetura-sistema.jpg" width="620">
 </p>
 
 O backend centraliza a comunicação com o MQTT, processa as leituras recebidas, salva os dados no banco e envia atualizações em tempo real para o site e para o aplicativo.
