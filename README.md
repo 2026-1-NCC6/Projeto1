@@ -45,7 +45,6 @@
     &emsp;&emsp;|-->Projeto Interdisciplinar | Internet das coisas e Robótica<br>
     &emsp;&emsp;|-->Teoria da Computação e Linguagens Formais<br>
     &emsp;&emsp;|-->Redes de Computadores e Cibersegurança<br>
-  &emsp;|readme.md<br>
 |-->src/smart_feeders<br>
   &emsp;|-->windows<br>
   &emsp;|-->android<br>
