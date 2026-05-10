@@ -10,7 +10,7 @@
 <img src="/imagens/Arkanis.png" width="620">
 </p>
 
-## Grupo 4
+## Grupo 1
 
 ### Integrantes:
 - **Aleff  Souza** — 23025514
@@ -34,17 +34,17 @@
 |<br>
 |-->documentos<br>
   &emsp;|-->Entrega 1<br>
-    &emsp;|-->Inovação e Empreendedorismo<br>
-    &emsp;|-->Sistemas Embarcados e Robótica<br>
-    &emsp;|-->Projeto Interdisciplinar | Internet das coisas e Robótica<br>
-    &emsp;|-->Teoria da Computação e Linguagens Formais<br>
-    &emsp;|-->Redes de Computadores e Cibersegurança<br>
+    &emsp;&emsp;|-->Inovação e Empreendedorismo<br>
+    &emsp;&emsp;|-->Sistemas Embarcados e Robótica<br>
+    &emsp;&emsp;|-->Projeto Interdisciplinar | Internet das coisas e Robótica<br>
+    &emsp;&emsp;|-->Teoria da Computação e Linguagens Formais<br>
+    &emsp;&emsp;|-->Redes de Computadores e Cibersegurança<br>
   &emsp;|-->Entrega 2<br>
-    &emsp;|-->Inovação e Empreendedorismo<br>
-    &emsp;|--Sistemas Embarcados e Robótica<br>
-    &emsp;|-->Projeto Interdisciplinar | Internet das coisas e Robótica<br>
-    &emsp;|-->Teoria da Computação e Linguagens Formais<br>
-    &emsp;|-->Redes de Computadores e Cibersegurança<br>
+    &emsp;&emsp;|-->Inovação e Empreendedorismo<br>
+    &emsp;&emsp;|--Sistemas Embarcados e Robótica<br>
+    &emsp;&emsp;|-->Projeto Interdisciplinar | Internet das coisas e Robótica<br>
+    &emsp;&emsp;|-->Teoria da Computação e Linguagens Formais<br>
+    &emsp;&emsp;|-->Redes de Computadores e Cibersegurança<br>
   &emsp;|readme.md<br>
 |-->src/smart_feeders<br>
   &emsp;|-->windows<br>
