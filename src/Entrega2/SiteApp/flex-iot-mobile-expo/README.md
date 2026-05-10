@@ -106,3 +106,12 @@ Exemplo de `eas.json`:
   }
 }
 ```
+
+## Configuração da API publicada no Render
+
+O aplicativo mobile consome a API do backend hospedado no Render.
+
+URL pública do backend:
+
+```txt
+https://projeto1-4rsx.onrender.com
