@@ -535,3 +535,21 @@ Você pode criar a sua própria licença Creative Commons em: https://chooser-be
 ## 🎓 Referências
 
 Aqui estão as referências usadas no projeto:
+## 🎓 Referências
+
+- Node.js: https://nodejs.org/
+- Express.js: https://expressjs.com/
+- React: https://react.dev/
+- Vite: https://vite.dev/
+- React Native: https://reactnative.dev/
+- Expo: https://docs.expo.dev/
+- Expo EAS Build: https://docs.expo.dev/build-reference/apk/
+- Prisma ORM: https://www.prisma.io/docs
+- SQLite: https://www.sqlite.org/docs.html
+- Socket.IO: https://socket.io/docs/v4/
+- MQTT: https://mqtt.org/
+- MQTT.js: https://github.com/mqttjs/MQTT.js
+- Render Web Services: https://render.com/docs/web-services
+- HiveMQ MQTT Essentials: https://www.hivemq.com/mqtt/
+- AWS — O que é MQTT: https://aws.amazon.com/pt/what-is/mqtt/
+- MDN Web Docs: https://developer.mozilla.org/
