@@ -74,21 +74,9 @@ A solução implementada permite receber dados ambientais, armazenar leituras, v
 
 A arquitetura final do sistema segue o fluxo:
 
-```txt
-Sensor / ESP / Simulador
-        ↓
-Broker MQTT
-        ↓
-Backend Node.js / Express
-        ↓
-Banco SQLite com Prisma ORM
-        ↓
-API REST + Socket.IO
-        ↓
-Site Web React/Vite
-        ↓
-Aplicativo Mobile React Native/Expo
-```
+<p align="center">
+<img src="https://miro.com/app/board/uXjVGp7G0UQ=/?moveToWidget=3458764670653330815&cot=10" width="620">
+</p>
 
 O backend centraliza a comunicação com o MQTT, processa as leituras recebidas, salva os dados no banco e envia atualizações em tempo real para o site e para o aplicativo.
 
